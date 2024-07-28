@@ -1,0 +1,86 @@
+services:
+  postgres14:
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES14_PASSWORD}
+    ports:
+      - "${POSTGRES14_PORT}:5432"
+    volumes:
+      - ./postgres14/data:/var/lib/postgresql/data
+      - "${PROJECT_PATH}:/projects"
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - "${PROJECT_PATH}:/projects"
+
+  redis:
+    image: redis:alpine
+
+  php72:
+    build:
+      context: ./php
+      dockerfile: php72.Dockerfile
+      args:
+        - PUID=${PUID}
+        - PGID=${PGID}
+    working_dir: /projects
+    user: www
+    volumes:
+      - "${PROJECT_PATH}:/projects"
+      - ./php/.bash_aliases:/home/www/.bash_aliases
+
+  php74:
+    build:
+      context: ./php
+      dockerfile: php74.Dockerfile
+      args:
+        - PUID=${PUID}
+        - PGID=${PGID}
+    working_dir: /projects
+    user: www
+    volumes:
+      - "${PROJECT_PATH}:/projects"
+      - ./php/.bash_aliases:/home/www/.bash_aliases
+
+  php80:
+    build:
+      context: ./php
+      dockerfile: php80.Dockerfile
+      args:
+        - PUID=${PUID}
+        - PGID=${PGID}
+    working_dir: /projects
+    user: www
+    volumes:
+      - "${PROJECT_PATH}:/projects"
+      - ./php/.bash_aliases:/home/www/.bash_aliases
+
+  php82:
+    build:
+      context: ./php
+      dockerfile: php82.Dockerfile
+      args:
+        - PUID=${PUID}
+        - PGID=${PGID}
+    working_dir: /projects
+    user: www
+    volumes:
+      - "${PROJECT_PATH}:/projects"
+      - ./php/.bash_aliases:/home/www/.bash_aliases
+
+  php83:
+    build:
+      context: ./php
+      dockerfile: php83.Dockerfile
+      args:
+        - PUID=${PUID}
+        - PGID=${PGID}
+    working_dir: /projects
+    user: www
+    volumes:
+      - "${PROJECT_PATH}:/projects"
+      - ./php/.bash_aliases:/home/www/.bash_aliases
