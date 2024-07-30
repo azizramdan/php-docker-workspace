@@ -33,6 +33,10 @@ RUN docker-php-ext-install gd
 RUN pecl install redis \
     && docker-php-ext-enable redis
 
+RUN apt-get install -y libgmp-dev
+RUN docker-php-ext-install gmp
+RUN docker-php-ext-configure gmp
+
 RUN apt-get -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
