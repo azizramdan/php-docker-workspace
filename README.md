@@ -93,7 +93,9 @@ Now, all domains with the `.test` extension will be directed to `127.0.0.1`, whi
 
 ### Working with Visual Studio Code
 
-I use the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension to integrate with the PHP container. Use [Attach to a running container](https://code.visualstudio.com/docs/devcontainers/attach-container) so that VSCode runs inside the container we have created.
+You can use the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension to integrate with the PHP container. Use [Attach to a running container](https://code.visualstudio.com/docs/devcontainers/attach-container) so that VSCode runs inside the container we have created.
+
+Note that git is not installed inside the container so you have to use git on the host not in the container. If you still want to use git inside the container then you have to add git installation in docker image and rebuild then follow this documentation [Working with Git](https://code.visualstudio.com/docs/devcontainers/containers#_working-with-git).
 
 ### PHP binary / executable path
 
@@ -154,4 +156,3 @@ Now `php.validate.executablePath` is solved. If a project uses a different PHP v
 ## Miscellaneous
 
 I also added services for Postgres, Redis, and bash aliases for development purposes. I aim to keep it simple and not include too many services.
-
