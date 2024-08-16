@@ -59,6 +59,19 @@ services:
       - "${PROJECT_PATH}:/projects"
       - ./php/.bash_aliases:/home/www/.bash_aliases
 
+  php81:
+    build:
+      context: ./php
+      dockerfile: php81.Dockerfile
+      args:
+        - PUID=${PUID}
+        - PGID=${PGID}
+    working_dir: /projects
+    user: www
+    volumes:
+      - "${PROJECT_PATH}:/projects"
+      - ./php/.bash_aliases:/home/www/.bash_aliases
+
   php82:
     build:
       context: ./php
