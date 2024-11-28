@@ -10,6 +10,11 @@ ENV PGID ${PGID}
 RUN groupadd -g ${PGID} www
 RUN useradd -u ${PUID} -g www -m www
 
+ENV COMPOSER_HOME=/home/www/.config/composer
+ENV COMPOSER_CACHE_DIR=/home/www/.cache/composer
+
+RUN echo 'export PATH="$PATH:/home/www/.config/composer/vendor/bin"' >> /home/www/.bashrc
+
 RUN apt-get update && apt-get install -y \
     build-essential \
 	libpq-dev \
@@ -38,6 +43,8 @@ RUN docker-php-ext-install gmp
 RUN docker-php-ext-configure gmp
 
 RUN apt-get install -y postgresql-client
+
+RUN composer global require laravel/installer
 
 RUN apt-get -y autoremove \
     && apt-get clean \
