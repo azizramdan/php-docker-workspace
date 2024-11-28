@@ -9,6 +9,16 @@ services:
       - ./postgres14/data:/var/lib/postgresql/data
       - "${PROJECT_PATH}:/projects"
 
+  mysql84:
+    image: mysql:8.4
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL84_ROOT_PASSWORD}
+    ports:
+      - "${MYSQL84_PORT}:3306"
+    volumes:
+      - ./mysql84:/var/lib/mysql
+      - "${PROJECT_PATH}:/projects"
+
   nginx:
     image: nginx:alpine
     ports:
