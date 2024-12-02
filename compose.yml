@@ -107,3 +107,16 @@ services:
     volumes:
       - "${PROJECT_PATH}:/projects"
       - ./php/.bash_aliases:/home/www/.bash_aliases
+  
+  php84:
+    build:
+      context: ./php
+      dockerfile: php84.Dockerfile
+      args:
+        - PUID=${PUID}
+        - PGID=${PGID}
+    working_dir: /projects
+    user: www
+    volumes:
+      - "${PROJECT_PATH}:/projects"
+      - ./php/.bash_aliases:/home/www/.bash_aliases
