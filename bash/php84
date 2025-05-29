@@ -1,0 +1,3 @@
+#!/bin/bash
+
+docker exec docker-php84-1 php $@
