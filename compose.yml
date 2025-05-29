@@ -9,6 +9,16 @@ services:
       - ./postgres14/data:/var/lib/postgresql/data
       - "${PROJECT_PATH}:/projects"
 
+  postgres17:
+    image: postgres:17-alpine
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES17_PASSWORD}
+    ports:
+      - "${POSTGRES17_PORT}:5432"
+    volumes:
+      - ./postgres17/data:/var/lib/postgresql/data
+      - "${PROJECT_PATH}:/projects"
+
   mysql84:
     image: mysql:8.4
     environment:
