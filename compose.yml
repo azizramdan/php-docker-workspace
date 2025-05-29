@@ -23,6 +23,8 @@ services:
     image: nginx:alpine
     ports:
       - 80:80
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - "${PROJECT_PATH}:/projects"
@@ -80,6 +82,7 @@ services:
     user: www
     volumes:
       - "${PROJECT_PATH}:/projects"
+      - "${PROJECT_PATH}:${PROJECT_PATH}"
       - ./php/.bash_aliases:/home/www/.bash_aliases
 
   php82:
@@ -93,6 +96,7 @@ services:
     user: www
     volumes:
       - "${PROJECT_PATH}:/projects"
+      - "${PROJECT_PATH}:${PROJECT_PATH}"
       - ./php/.bash_aliases:/home/www/.bash_aliases
 
   php83:
@@ -106,6 +110,7 @@ services:
     user: www
     volumes:
       - "${PROJECT_PATH}:/projects"
+      - "${PROJECT_PATH}:${PROJECT_PATH}"
       - ./php/.bash_aliases:/home/www/.bash_aliases
   
   php84:
@@ -119,4 +124,5 @@ services:
     user: www
     volumes:
       - "${PROJECT_PATH}:/projects"
+      - "${PROJECT_PATH}:${PROJECT_PATH}"
       - ./php/.bash_aliases:/home/www/.bash_aliases
