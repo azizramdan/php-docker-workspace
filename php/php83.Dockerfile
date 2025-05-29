@@ -46,6 +46,9 @@ RUN apt-get install -y postgresql-client
 
 RUN composer global require laravel/installer
 
+RUN apt-get install -y libicu-dev
+RUN docker-php-ext-install intl
+
 RUN apt-get -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
