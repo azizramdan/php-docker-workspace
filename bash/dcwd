@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Check if the first argument is provided
+if [ -z "$1" ]; then
+  echo "Usage: dcwd <service_name>"
+  exit 1
+fi
+
+# Get the full path of the current directory
+current_full_path=$(pwd)
+
+# Check if the current directory is under ~/projects/
+if [[ $current_full_path != $HOME/projects/* ]]; then
+  echo "Error: Current directory must be under ~/projects/"
+  exit 1
+fi
+
+# Get the relative path from ~/projects/
+relative_path=${current_full_path#$HOME/projects/}
+
+# Check if we're directly in ~/projects/
+if [ -z "$relative_path" ]; then
+  echo "Error: Must be in a subdirectory of ~/projects/"
+  exit 1
+fi
+
+# Run docker compose exec and change to the relative directory inside the container
+docker compose -f ~/projects/docker/compose.yml exec "$1" bash -c "cd $relative_path && exec bash"
