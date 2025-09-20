@@ -3,13 +3,11 @@
 CACHE_FILE="/tmp/php_container_cache"
 CONTAINERS=("docker-php84-1" "docker-php83-1" "docker-php82-1" "docker-php81-1" "docker-php80-1" "docker-php74-1" "docker-php72-1")
 
-# Decide if we need interactive mode
+# Detect execution mode
 if [[ -t 0 && -t 1 ]]; then
-    # Running in a terminal → interactive
     EXEC_OPTS="-it"
 else
-    # Non-interactive (e.g. piping, scripts)
-    EXEC_OPTS=""
+    EXEC_OPTS="-i"
 fi
 
 # Try to use cached container first (if it exists and is running)
