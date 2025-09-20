@@ -3,11 +3,20 @@
 CACHE_FILE="/tmp/php_container_cache"
 CONTAINERS=("docker-php84-1" "docker-php83-1" "docker-php82-1" "docker-php81-1" "docker-php80-1" "docker-php74-1" "docker-php72-1")
 
+# Decide if we need interactive mode
+if [[ -t 0 && -t 1 ]]; then
+    # Running in a terminal → interactive
+    EXEC_OPTS="-it"
+else
+    # Non-interactive (e.g. piping, scripts)
+    EXEC_OPTS=""
+fi
+
 # Try to use cached container first (if it exists and is running)
 if [ -f "$CACHE_FILE" ]; then
     cached_container=$(cat "$CACHE_FILE")
     if docker ps --format '{{.Names}}' | grep -q "^${cached_container}\$"; then
-        docker exec "$cached_container" php "$@"
+        docker exec $EXEC_OPTS -w "$(pwd)" "$cached_container" php "$@"
         exit $?
     fi
 fi
@@ -27,4 +36,4 @@ if [ -z "$selected_container" ]; then
     exit 1
 fi
 
-docker exec "$selected_container" php "$@"
+docker exec $EXEC_OPTS -w "$(pwd)" "$selected_container" php "$@"
