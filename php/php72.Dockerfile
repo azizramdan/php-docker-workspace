@@ -10,6 +10,12 @@ ENV PGID ${PGID}
 RUN groupadd -g ${PGID} www
 RUN useradd -u ${PUID} -g www -m www
 
+# Update repository sources to use archive
+RUN sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list && \
+    sed -i 's|security.debian.org|archive.debian.org/|g' /etc/apt/sources.list && \
+    sed -i '/buster-updates/d' /etc/apt/sources.list
+
+
 RUN apt-get update && apt-get install -y \
     build-essential \
 	libpq-dev \
