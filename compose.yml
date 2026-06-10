@@ -18,6 +18,16 @@ services:
     volumes:
       - ./postgres17/data:/var/lib/postgresql/data
       - "${PROJECT_PATH}:/projects"
+  
+  postgres18:
+    image: postgres:18-alpine
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES18_PASSWORD}
+    ports:
+      - "${POSTGRES18_PORT}:5432"
+    volumes:
+      - ./postgres18/data:/var/lib/postgresql/data
+      - "${PROJECT_PATH}:/projects"
 
   mysql84:
     image: mysql:8.4
@@ -108,6 +118,7 @@ services:
     working_dir: /projects
     user: www
     volumes:
+      - ./php/php.ini:/usr/local/etc/php/conf.d/www-99.ini
       - "${PROJECT_PATH}:/projects"
       - "${PROJECT_PATH}:${PROJECT_PATH}"
       - ./php/.bash_aliases:/home/www/.bash_aliases
@@ -130,6 +141,20 @@ services:
     build:
       context: ./php
       dockerfile: php84.Dockerfile
+      args:
+        - PUID=${PUID}
+        - PGID=${PGID}
+    working_dir: /projects
+    user: www
+    volumes:
+      - "${PROJECT_PATH}:/projects"
+      - "${PROJECT_PATH}:${PROJECT_PATH}"
+      - ./php/.bash_aliases:/home/www/.bash_aliases
+  
+  php85:
+    build:
+      context: ./php
+      dockerfile: php85.Dockerfile
       args:
         - PUID=${PUID}
         - PGID=${PGID}

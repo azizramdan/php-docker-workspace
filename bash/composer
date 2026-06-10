@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CACHE_FILE="/tmp/php_container_cache"
+CACHE_FILE="/tmp/composer_container_cache"
 CONTAINERS=("docker-php85-1" "docker-php84-1" "docker-php83-1" "docker-php82-1" "docker-php81-1" "docker-php80-1" "docker-php74-1" "docker-php72-1")
 
 # Detect execution mode
@@ -14,7 +14,7 @@ fi
 if [ -f "$CACHE_FILE" ]; then
     cached_container=$(cat "$CACHE_FILE")
     if docker ps --format '{{.Names}}' | grep -q "^${cached_container}\$"; then
-        docker exec $EXEC_OPTS -w "$(pwd)" "$cached_container" php "$@"
+        docker exec $EXEC_OPTS -w "$(pwd)" "$cached_container" composer "$@"
         exit $?
     fi
 fi
@@ -34,4 +34,4 @@ if [ -z "$selected_container" ]; then
     exit 1
 fi
 
-docker exec $EXEC_OPTS -w "$(pwd)" "$selected_container" php "$@"
+docker exec $EXEC_OPTS -w "$(pwd)" "$selected_container" composer "$@"

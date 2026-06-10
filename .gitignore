@@ -1,3 +1,6 @@
 .env
-postgres14/data
+postgres14
+postgres17
+postgres18
 mysql84
+qdrant
