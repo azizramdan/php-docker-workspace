@@ -5,6 +5,7 @@ if TTY_PATH=$(tty 2>/dev/null); then
 else
     CACHE_FILE="/tmp/php_container_cache_default"
 fi
+DEFAULT_CACHE_FILE="/tmp/php_container_cache_default"
 CONTAINERS=("docker-php85-1" "docker-php84-1" "docker-php83-1" "docker-php82-1" "docker-php81-1" "docker-php80-1" "docker-php74-1" "docker-php72-1")
 
 # Detect execution mode
@@ -14,7 +15,7 @@ else
     EXEC_OPTS="-i"
 fi
 
-# Try to use cached container first (if it exists and is running)
+# 1. This terminal's own explicit `setphp` selection
 if [ -f "$CACHE_FILE" ]; then
     cached_container=$(cat "$CACHE_FILE")
     if docker ps --format '{{.Names}}' | grep -q "^${cached_container}\$"; then
@@ -23,12 +24,22 @@ if [ -f "$CACHE_FILE" ]; then
     fi
 fi
 
-# Find the first running container
+# 2. Shared default (set via `setphp --default`, or a previous auto-detect below)
+if [ -f "$DEFAULT_CACHE_FILE" ]; then
+    default_container=$(cat "$DEFAULT_CACHE_FILE")
+    if docker ps --format '{{.Names}}' | grep -q "^${default_container}\$"; then
+        docker exec $EXEC_OPTS -w "$(pwd)" "$default_container" composer "$@"
+        exit $?
+    fi
+fi
+
+# 3. Auto-detect the first running container; remember it as the shared default,
+# not this terminal's own selection, so it stays overridable by `setphp --default`.
 selected_container=""
 for container in "${CONTAINERS[@]}"; do
     if docker ps --format '{{.Names}}' | grep -q "^${container}\$"; then
         selected_container="$container"
-        echo "$container" > "$CACHE_FILE"  # Cache the selected container
+        echo "$container" > "$DEFAULT_CACHE_FILE"
         break
     fi
 done

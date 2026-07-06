@@ -122,7 +122,7 @@ The `bash/` directory has wrapper scripts for that, working a bit like `nvm`:
 
 - `bash/php` — forwards to `php` inside whichever `phpXX` container is currently selected (or the first one it finds running).
 - `bash/composer` — same idea, but for `composer`.
-- `bash/setphp <version>` — selects which PHP container `php`/`composer` should target for the current host, e.g. `setphp 84`.
+- `bash/setphp <version> [--default]` — selects which PHP container `php`/`composer` should target for the current terminal, e.g. `setphp 84`. Add `--default` to also update the global fallback used by non-terminal tools (see note below).
 - `bash/dcwd <service>` — `docker compose exec`s into a service and `cd`s into the matching path, based on where you are under `~/projects`.
 
 Symlink the ones you want into your `PATH` and make them executable:
@@ -143,7 +143,13 @@ setphp 84
 php -v      # PHP 8.4.x (cli)
 ```
 
-The selection is cached per terminal (keyed by `tty`, in `/tmp/php_container_cache_*`), so switching with `setphp` doesn't require touching a symlink, and each open terminal can run a different PHP version at the same time — e.g. `setphp 84` in one tab and `setphp 85` in another, similar to `nvm use` per shell.
+The selection is resolved in three tiers, checked in order:
+
+1. **This terminal's own pin** — set by running `setphp <version>` in that specific terminal (keyed by `tty`, in `/tmp/php_container_cache_*`). Sticks until you `setphp` something else in that same terminal, regardless of what happens elsewhere.
+2. **The shared default** — set by `setphp <version> --default` (from any terminal), in `/tmp/php_container_cache_default`. Any terminal that hasn't pinned itself explicitly follows this live, so changing it elsewhere is picked up on your very next `php`/`composer` call.
+3. **Auto-detect** — if neither exists (or its container isn't running), the first running `phpXX` container is used and remembered as the shared default (tier 2), not as this terminal's pin, so it stays overridable.
+
+This means each open terminal can run a different PHP version at the same time — e.g. `setphp 84` in one tab and `setphp 85` in another, similar to `nvm use` per shell.
 
 This also solves `php.validate.executablePath`, just point it at the wrapper:
 
@@ -152,6 +158,8 @@ This also solves `php.validate.executablePath`, just point it at the wrapper:
   "php.validate.executablePath": "/usr/local/bin/php"
 }
 ```
+
+Note that VSCode's extension host spawns that binary without a tty, so it can never see a terminal's `setphp` selection — it always falls back to the shared default cache (or auto-detects the first running container). Use `setphp <version> --default` in a terminal to also pin that shared default, keeping the editor's validation in sync with the terminal you're actually working in.
 
 ## Miscellaneous
 
