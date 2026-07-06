@@ -22,12 +22,14 @@ cat /etc/passwd | grep $USER
 echo $UID && echo $GID
 ```
 
-Then in the `.env` file
+Then in the `.env` file (copy `.env.example` to `.env` first, it also holds the Postgres/MySQL credentials and ports used below)
 
 ```env
 PUID=1000
 PGID=1000
 ```
+
+Currently supported PHP versions: `7.2`, `7.4`, `8.0`, `8.1`, `8.2`, `8.3`, `8.4`, `8.5`.
 
 Each image will be created as a service in docker compose. Each PHP service mounts a volume to the location where all projects are located based on the `PROJECT_PATH` environment variable; this is inspired by Laradock [Multiple Projects](https://laradock.io/getting-started/#B).
 
@@ -81,12 +83,27 @@ Now, access these domains from the browser. This concept is inspired by Laragon,
 
 Whenever there is a new project, it must be added to the DNS in the `/etc/hosts` file. In Laragon, everything is automatically generated, both the virtual host configuration and the DNS entry in `/etc/hosts`. To achieve this, I use `dnsmasq`, although it works differently from Laragon.
 
-Currently, I use [EndeavourOS](https://endeavouros.com/) which has dnsmasq pre-installed, so I simply add this configuration:
+Currently, I use [Fedora Workstation](https://fedoraproject.org/workstation/), where NetworkManager doesn't use `dnsmasq` as its DNS backend by default, so it has to be enabled first:
+
+```
+# /etc/NetworkManager/conf.d/dnsmasq.conf
+
+[main]
+dns=dnsmasq
+```
+
+Then add the wildcard config:
 
 ```
 # /etc/NetworkManager/dnsmasq.d/nginx-docker.conf
 
 address=/.test/127.0.0.1
+```
+
+Restart NetworkManager to apply it:
+
+```bash
+sudo systemctl restart NetworkManager
 ```
 
 Now, all domains with the `.test` extension will be directed to `127.0.0.1`, which will then be handled by `nginx` according to the domain pattern without needing to add entries to the `/etc/hosts` file.
@@ -95,64 +112,47 @@ Now, all domains with the `.test` extension will be directed to `127.0.0.1`, whi
 
 You can use the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension to integrate with the PHP container. Use [Attach to a running container](https://code.visualstudio.com/docs/devcontainers/attach-container) so that VSCode runs inside the container we have created.
 
-Note that git is not installed inside the container so you have to use git on the host not in the container. If you still want to use git inside the container then you have to add git installation in docker image and rebuild then follow this documentation [Working with Git](https://code.visualstudio.com/docs/devcontainers/containers#_working-with-git).
+Note that git is not installed inside the container by default, so you have to use git on the host, not in the container. If you still want to use git inside the container, add the installation to that PHP version's Dockerfile and rebuild (already done for `php82` and `php85` as an example), then follow this documentation [Working with Git](https://code.visualstudio.com/docs/devcontainers/containers#_working-with-git).
 
 ### PHP binary / executable path
 
-If PHP is not installed on the host and you are not using [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) in VSCode, there will be an error in the `php.validate.executablePath` configuration.
+If PHP is not installed on the host and you are not using [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) in VSCode, there will be an error in the `php.validate.executablePath` configuration, and you also won't be able to run `php`/`composer` directly from the host shell.
 
-Create a bash file to access the PHP binary inside the container for each PHP version:
+The `bash/` directory has wrapper scripts for that, working a bit like `nvm`:
 
-```bash
-# /usr/local/bin/php82
+- `bash/php` — forwards to `php` inside whichever `phpXX` container is currently selected (or the first one it finds running).
+- `bash/composer` — same idea, but for `composer`.
+- `bash/setphp <version>` — selects which PHP container `php`/`composer` should target for the current host, e.g. `setphp 84`.
+- `bash/dcwd <service>` — `docker compose exec`s into a service and `cd`s into the matching path, based on where you are under `~/projects`.
 
-#!/bin/bash
-docker exec -it docker-php82-1 php $@
-```
-
-Then add execution permissions:
+Symlink the ones you want into your `PATH` and make them executable:
 
 ```bash
-sudo chmod +x /usr/local/bin/php82
+sudo ln -sf ~/projects/docker/bash/php /usr/local/bin/php
+sudo ln -sf ~/projects/docker/bash/composer /usr/local/bin/composer
+sudo ln -sf ~/projects/docker/bash/setphp /usr/local/bin/setphp
+sudo chmod +x ~/projects/docker/bash/php ~/projects/docker/bash/composer ~/projects/docker/bash/setphp
 ```
 
-Now, from the host, you can access it like this:
+Now, from the host:
 
 ```bash
-php82 -v
-php80 -v
+php -v      # PHP 8.2.21 (cli), whichever phpXX container is running/selected
+
+setphp 84
+php -v      # PHP 8.4.x (cli)
 ```
 
-You can also create a symlink to access it with the `php` keyword:
+The selected version is cached in `/tmp/php_container_cache`, so switching with `setphp` doesn't require touching a symlink and persists across shells until you switch again.
 
-```bash
-sudo ln -sf /usr/local/bin/php82 /usr/local/bin/php
-```
-
-So you can access:
-
-```bash
-php -v # PHP 8.2.21 (cli)
-```
-
-If you want to change the version, just create a symlink for another version. Unfortunately, with this method, you can only activate one version at a time. I will update it (if I have time) to work like nvm, which can change the version only in the active terminal session.
-
-```bash
-sudo ln -sf /usr/local/bin/php80 /usr/local/bin/php
-php -v # PHP 8.0.0 (cli)
-
-sudo ln -sf /usr/local/bin/php74 /usr/local/bin/php
-php -v # PHP 7.4.0 (cli)
-```
-
-Now `php.validate.executablePath` is solved. If a project uses a different PHP version, you can either change the symlink or update the `php.validate.executablePath` configuration to use another version.
+This also solves `php.validate.executablePath`, just point it at the wrapper:
 
 ```json
 {
-  "php.validate.executablePath": "/usr/local/bin/php80"
+  "php.validate.executablePath": "/usr/local/bin/php"
 }
 ```
 
 ## Miscellaneous
 
-I also added services for Postgres, Redis, and bash aliases for development purposes. I aim to keep it simple and not include too many services.
+I also added services for PostgreSQL (14, 17, 18), MySQL 8.4, Redis, and bash aliases/helper scripts for development purposes. I aim to keep it simple and not include too many services.
