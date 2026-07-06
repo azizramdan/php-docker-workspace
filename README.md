@@ -143,7 +143,7 @@ setphp 84
 php -v      # PHP 8.4.x (cli)
 ```
 
-The selected version is cached in `/tmp/php_container_cache`, so switching with `setphp` doesn't require touching a symlink and persists across shells until you switch again.
+The selection is cached per terminal (keyed by `tty`, in `/tmp/php_container_cache_*`), so switching with `setphp` doesn't require touching a symlink, and each open terminal can run a different PHP version at the same time — e.g. `setphp 84` in one tab and `setphp 85` in another, similar to `nvm use` per shell.
 
 This also solves `php.validate.executablePath`, just point it at the wrapper:
 

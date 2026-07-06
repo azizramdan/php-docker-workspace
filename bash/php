@@ -1,6 +1,10 @@
 #!/bin/bash
 
-CACHE_FILE="/tmp/php_container_cache"
+if TTY_PATH=$(tty 2>/dev/null); then
+    CACHE_FILE="/tmp/php_container_cache_$(echo "$TTY_PATH" | tr '/' '_')"
+else
+    CACHE_FILE="/tmp/php_container_cache_default"
+fi
 CONTAINERS=("docker-php85-1" "docker-php84-1" "docker-php83-1" "docker-php82-1" "docker-php81-1" "docker-php80-1" "docker-php74-1" "docker-php72-1")
 
 # Detect execution mode

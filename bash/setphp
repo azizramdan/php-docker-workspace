@@ -1,6 +1,10 @@
 #!/bin/bash
 
-CACHE_FILE="/tmp/php_container_cache"
+if TTY_PATH=$(tty 2>/dev/null); then
+    CACHE_FILE="/tmp/php_container_cache_$(echo "$TTY_PATH" | tr '/' '_')"
+else
+    CACHE_FILE="/tmp/php_container_cache_default"
+fi
 SUPPORTED_VERSIONS=("85" "84" "83" "82" "81" "80" "74" "72")
 
 if [ -z "$1" ]; then
@@ -18,4 +22,4 @@ fi
 # Set the container name in cache
 CONTAINER="docker-php${1}-1"
 echo "$CONTAINER" > "$CACHE_FILE"
-echo "PHP container set to: $CONTAINER"
+echo "PHP container set to: $CONTAINER (this terminal only)"
