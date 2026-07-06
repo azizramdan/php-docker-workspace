@@ -6,7 +6,7 @@ services:
     ports:
       - "${POSTGRES14_PORT}:5432"
     volumes:
-      - ./postgres14/data:/var/lib/postgresql/data
+      - ./data/postgres14/data:/var/lib/postgresql/data
       - "${PROJECT_PATH}:/projects"
 
   postgres17:
@@ -16,7 +16,7 @@ services:
     ports:
       - "${POSTGRES17_PORT}:5432"
     volumes:
-      - ./postgres17/data:/var/lib/postgresql/data
+      - ./data/postgres17/data:/var/lib/postgresql/data
       - "${PROJECT_PATH}:/projects"
   
   postgres18:
@@ -26,7 +26,7 @@ services:
     ports:
       - "${POSTGRES18_PORT}:5432"
     volumes:
-      - ./postgres18/data:/var/lib/postgresql/data
+      - ./data/postgres18/data:/var/lib/postgresql/data
       - "${PROJECT_PATH}:/projects"
 
   mysql84:
@@ -36,7 +36,7 @@ services:
     ports:
       - "${MYSQL84_PORT}:3306"
     volumes:
-      - ./mysql84:/var/lib/mysql
+      - ./data/mysql84:/var/lib/mysql
       - "${PROJECT_PATH}:/projects"
 
   nginx:
