@@ -32,7 +32,8 @@ RUN apt-get update && apt-get install -y \
     curl \
     wget \
     lsb-release \
-    gnupg2
+    gnupg2 \
+    git
 
 RUN . /etc/os-release && \
     echo "deb [signed-by=/usr/share/keyrings/postgresql-keyring.gpg] http://apt.postgresql.org/pub/repos/apt/ ${VERSION_CODENAME}-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
