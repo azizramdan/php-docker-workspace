@@ -108,6 +108,24 @@ sudo systemctl restart NetworkManager
 
 Now, all domains with the `.test` extension will be directed to `127.0.0.1`, which will then be handled by `nginx` according to the domain pattern without needing to add entries to the `/etc/hosts` file.
 
+#### Troubleshooting: `.test` domains not resolving
+
+On systems where `systemd-resolved` is active, `/etc/resolv.conf` is a symlink to its own stub (`127.0.0.53`), and it makes all DNS decisions itself — it does not automatically know about NetworkManager's `dns=dnsmasq` setting above, so the `.test` wildcard silently never applies (`resolvectl status` / `resolvectl domain` show no `~test` route, even though `dig @127.0.0.1 something.test` answers fine when queried directly).
+
+Fix it by telling `systemd-resolved` globally, so it works regardless of which network is active:
+
+```
+# /etc/systemd/resolved.conf.d/local-test-domain.conf
+
+[Resolve]
+DNS=127.0.0.1
+Domains=~test
+```
+
+```bash
+sudo systemctl restart systemd-resolved
+```
+
 ### Working with Visual Studio Code
 
 You can use the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension to integrate with the PHP container. Use [Attach to a running container](https://code.visualstudio.com/docs/devcontainers/attach-container) so that VSCode runs inside the container we have created.
